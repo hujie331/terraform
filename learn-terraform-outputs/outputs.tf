@@ -7,7 +7,7 @@ output "vpc_id" {
 
 output "lb_url" {
     description = "URL of load balancer"
-    value       = aws_lb.lb.dns_name
+    value       = "http://${module.elb_http.this_elb_dns_name}/"
 }
 
 output "web_server_count" {
