@@ -11,142 +11,43 @@ terraform {
 provider "azurerm" {
   features {}
 }
-
-resource "azurerm_resource_group" "main" {
-  name = "mainnetwork"
-  location = "eastus"
-  
+resource "azurerm_resource_group" "example" {
+  name     = "example-resources"
+  location = "West Europe"
 }
 
-resource "azurerm_virtual_network" "main-1" {
-  name = "main-1"
-  location = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  address_space = ["10.0.0.0/16"]
-
-  
+resource "azurerm_virtual_network" "example" {
+  name                = "testvnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
 }
 
-resource "azurerm_virtual_network" "main-2" {
-  name                = "maint-2"
-  resource_group_name = azurerm_resource_group.main.name
-  address_space       = ["10.1.0.0/16"]
-  location            = azurerm_resource_group.main.location
+resource "azurerm_subnet" "example" {
+  name                 = "AzureFirewallSubnet"
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
-resource "azurerm_virtual_network_peering" "main-1" {
-  name                      = "peer1to2"
-  resource_group_name       = azurerm_resource_group.main.name
-  virtual_network_name      = azurerm_virtual_network.main-1.name
-  remote_virtual_network_id = azurerm_virtual_network.main-2.id
+resource "azurerm_public_ip" "example" {
+  name                = "testpip"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }
 
-resource "azurerm_virtual_network_peering" "main-2" {
-  name                      = "peer2to1"
-  resource_group_name       = azurerm_resource_group.main.name
-  virtual_network_name      = azurerm_virtual_network.main-2.name
-  remote_virtual_network_id = azurerm_virtual_network.main-1.id
-}
-
-resource "azurerm_subnet" "main" {
-  for_each = local.subnets
-  name = each.value.name
-  resource_group_name = azurerm_resource_group.main.name
-  address_prefixes = each.value.address_prefix
-  virtual_network_name = azurerm_virtual_network.main-1.name
-  
-}
-
-resource "azurerm_subnet" "main2" {
-  for_each = local.subnets2
-  name = each.value.name
-  resource_group_name = azurerm_resource_group.main.name
-  address_prefixes = each.value.address_prefix
-  virtual_network_name = azurerm_virtual_network.main-2.name
-  
-}
-
-
-resource "azurerm_network_interface" "example" {
-  name                = "example-nic"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
+resource "azurerm_firewall" "example" {
+  name                = "testfirewall"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  sku_name            = "AZFW_VNet"
+  sku_tier            = "Standard"
 
   ip_configuration {
-    name                          = "internal"
-    subnet_id                     = data.azurerm_subnet.main.id
-    private_ip_address_allocation = "Dynamic"
+    name                 = "configuration"
+    subnet_id            = azurerm_subnet.example.id
+    public_ip_address_id = azurerm_public_ip.example.id
   }
-}
-
-resource "azurerm_windows_virtual_machine" "example" {
-  name                = "example-machine"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  size                = "Standard_F2"
-  admin_username      = "adminuser"
-  admin_password      = "P@$$w0rd1234!"
-  network_interface_ids = [
-    azurerm_network_interface.example.id,
-  ]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
-    version   = "latest"
-  }
-}
-
-resource "azurerm_network_interface" "example2" {
-  name                = "example-nic"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = data.azurerm_subnet.main2.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
-resource "azurerm_windows_virtual_machine" "example2" {
-  name                = "example-machine"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  size                = "Standard_F2"
-  admin_username      = "adminuser"
-  admin_password      = "P@$$w0rd1234!"
-  network_interface_ids = [
-    azurerm_network_interface.example2.id,
-  ]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
-    version   = "latest"
-  }
-}
-
-data "azurerm_subnet" "main" {
-  name = "subnet1"
-  virtual_network_name = azurerm_virtual_network.main-1.name
-  resource_group_name = azurerm_resource_group.main.name
-}
-
-data "azurerm_subnet" "main2" {
-  name = "subnet1"
-  virtual_network_name = azurerm_virtual_network.main-2.name
-  resource_group_name = azurerm_resource_group.main.name
 }
