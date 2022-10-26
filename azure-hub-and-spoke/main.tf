@@ -2,7 +2,7 @@ resource "azurerm_resource_group" "main" {
   name     = "mainnetwork"
   location = "eastus"
 }
-
+/*
 resource "azurerm_virtual_network_peering" "dev-to-hub-peer" {
   name = "dev-to-hub-peer"
   virtual_network_name = azurerm_virtual_network.devnetwork.name
@@ -21,3 +21,4 @@ resource "azurerm_virtual_network_peering" "test-to-hub-peer" {
   allow_forwarded_traffic = true
 }
 
+*/
