@@ -32,7 +32,7 @@ resource "azurerm_windows_virtual_machine" "hubvm" {
   location            = azurerm_resource_group.main.location
   size                = "Standard_F2"
   admin_username      = "adminuser"
-  admin_password      = "P@$$w0rd1234!"
+  admin_password      = ""
   network_interface_ids = [
     azurerm_network_interface.example.id,
   ]
