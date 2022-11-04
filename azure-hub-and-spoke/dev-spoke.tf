@@ -24,17 +24,17 @@ resource "azurerm_network_interface" "devnic" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.devsubnet.id
     private_ip_address_allocation = "Dynamic"
-    /*public_ip_address_id = azurerm_public_ip.devpip.id*/
+    public_ip_address_id = azurerm_public_ip.devpip.id
   }
 }
 
-/*
+
 resource "azurerm_public_ip" "devpip" {
   name                = "devpip"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Static"
-}*/
+}
 
 
 resource "azurerm_windows_virtual_machine" "devvm" {
@@ -61,7 +61,7 @@ resource "azurerm_windows_virtual_machine" "devvm" {
   }
 }
 
-
+/*
 resource "azurerm_subnet" "bastionsubnet" {
   name                 = "AzureBastionSubnet"
   resource_group_name  = azurerm_resource_group.main.name
@@ -87,4 +87,4 @@ resource "azurerm_bastion_host" "main" {
     subnet_id            = azurerm_subnet.bastionsubnet.id
     public_ip_address_id = azurerm_public_ip.bastionpip.id
   }
-}
+}*/

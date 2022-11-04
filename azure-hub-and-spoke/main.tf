@@ -3,7 +3,7 @@ resource "azurerm_resource_group" "main" {
   location = "eastus"
 }
 resource "azurerm_virtual_network_peering" "dev-to-hub-peer" {
-  name = "hubtodev"
+  name = "devtohub"
   virtual_network_name = azurerm_virtual_network.devnetwork.name
   remote_virtual_network_id = azurerm_virtual_network.hubnetwork.id
   resource_group_name = azurerm_resource_group.main.name
