@@ -1,6 +1,6 @@
 variable "password" {
     description = "password for the palo alto login"
     type = string
-    default = "admin"
+    default = ""
     sensitive = true
 }
